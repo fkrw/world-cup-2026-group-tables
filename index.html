@@ -420,6 +420,16 @@
       text-decoration: none !important;
     }
 
+    .third-select {
+      max-width: 120px;
+      font-size: 13px;
+      padding: 2px 4px;
+      min-height: 24px;
+      font-weight: 650;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+    }
+
     .jump-nav {
       display: flex;
       flex-wrap: wrap;
@@ -832,6 +842,14 @@
       renderThirds();
     }
 
+    function getTopThirdTeams() {
+      return groups
+        .map(group => groupStats(group)[2])
+        .filter(Boolean)
+        .sort(compareRows)
+        .slice(0, 8);
+    }
+
     function renderThirds() {
       const thirds = groups
         .map(group => groupStats(group)[2])
@@ -858,22 +876,22 @@
     }
 
     const initialR32 = [
-      { home: "A2位", away: "B2位" },
-      { home: "E1位", away: "A/B/C/D/F3位" },
-      { home: "F1位", away: "C2位" },
-      { home: "C1位", away: "F2位" },
-      { home: "I1位", away: "C/D/F/G/H3位" },
-      { home: "E2位", away: "I2位" },
-      { home: "A1位", away: "C/E/F/H/I3位" },
-      { home: "L1位", away: "E/H/I/J/K3位" },
-      { home: "J1位", away: "H2位" },
-      { home: "G1位", away: "A/E/H/I/J3位" },
-      { home: "K2位", away: "L2位" },
-      { home: "H1位", away: "J2位" },
-      { home: "B1位", away: "E/F/G/I/J3位" },
-      { home: "K1位", away: "D/E/I/J/L3位" },
-      { home: "D1位", away: "A/B/E/F/G3位" },
-      { home: "D2位", away: "G2位" }
+      { home: "A2位", away: "B2位" },           // Match 73
+      { home: "F1位", away: "C2位" },           // Match 75
+      { home: "E1位", away: "A/B/C/D/F3位" },   // Match 74
+      { home: "I1位", away: "C/D/F/G/H3位" },   // Match 77
+      { home: "K2位", away: "L2位" },           // Match 83
+      { home: "H1位", away: "J2位" },           // Match 84
+      { home: "J1位", away: "H2位" },           // Match 81
+      { home: "G1位", away: "A/E/H/I/J3位" },   // Match 82
+      { home: "C1位", away: "F2位" },           // Match 76
+      { home: "E2位", away: "I2位" },           // Match 78
+      { home: "A1位", away: "C/E/F/H/I3位" },   // Match 79
+      { home: "L1位", away: "E/H/I/J/K3位" },   // Match 80
+      { home: "B1位", away: "E/F/G/I/J3位" },   // Match 85
+      { home: "D1位", away: "A/B/E/F/G3位" },   // Match 87
+      { home: "K1位", away: "D/E/I/J/L3位" },   // Match 86
+      { home: "D2位", away: "G2位" }            // Match 88
     ];
 
     const koTree = [];
@@ -957,10 +975,19 @@
 
     function resolveTeamRef(ref) {
       if (ref.type === 'placeholder') {
+        if (ref.value.includes('3位')) {
+          const assigned = state['ko_assign:' + ref.value];
+          if (assigned) {
+            return { name: displayTeam(assigned), isDetermined: true, isThirdPlaceholder: true, placeholder: ref.value, assignedId: assigned };
+          } else {
+            return { name: tKoPlaceholder(ref.value), isDetermined: false, isThirdPlaceholder: true, placeholder: ref.value, assignedId: '' };
+          }
+        }
         const determined = getKnockoutTeamIsDetermined(ref.value);
         return { 
           name: determined ? getKnockoutTeam(ref.value) : tKoPlaceholder(ref.value), 
-          isDetermined: determined 
+          isDetermined: determined,
+          isThirdPlaceholder: false
         };
       } else if (ref.type === 'match') {
         const winner = koWinners[ref.value];
@@ -971,6 +998,16 @@
           return { name: currentLang === 'ja' ? `M${mNum} 勝者` : `Winner M${mNum}`, isDetermined: false };
         }
       }
+    }
+
+    function renderThirdSelect(teamRef) {
+      const top8 = getTopThirdTeams();
+      let options = `<option value="">${teamRef.name}</option>`;
+      for (const t of top8) {
+        const selected = (teamRef.assignedId === t.team) ? "selected" : "";
+        options += `<option value="${t.team}" ${selected}>${displayTeam(t.team)}</option>`;
+      }
+      return `<select class="third-select" data-placeholder="${teamRef.placeholder}">${options}</select>`;
     }
 
     function renderKoNode(m) {
@@ -990,8 +1027,8 @@
       const hClass = (stateVal.home !== "" && stateVal.away !== "" && !homeWon) ? "eliminated" : "";
       const aClass = (stateVal.home !== "" && stateVal.away !== "" && !awayWon) ? "eliminated" : "";
       
-      const hText = h.isDetermined ? h.name : `<span class="ko-placeholder">${h.name}</span>`;
-      const aText = a.isDetermined ? a.name : `<span class="ko-placeholder">${a.name}</span>`;
+      const hText = h.isThirdPlaceholder ? renderThirdSelect(h) : (h.isDetermined ? h.name : `<span class="ko-placeholder">${h.name}</span>`);
+      const aText = a.isThirdPlaceholder ? renderThirdSelect(a) : (a.isDetermined ? a.name : `<span class="ko-placeholder">${a.name}</span>`);
 
       return `
         <div class="ko-node">
@@ -1146,6 +1183,20 @@
         render();
         const replacement = document.querySelector(`input[data-key="${CSS.escape(key)}"][data-side="${input.dataset.side}"]`);
         if (replacement) replacement.focus();
+      }
+    });
+
+    document.addEventListener("change", e => {
+      if (e.target.matches(".third-select")) {
+        const placeholder = e.target.getAttribute("data-placeholder");
+        const val = e.target.value;
+        if (val) {
+          state['ko_assign:' + placeholder] = val;
+        } else {
+          delete state['ko_assign:' + placeholder];
+        }
+        save();
+        renderKnockout();
       }
     });
 
