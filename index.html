@@ -1,0 +1,1173 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>World Cup 2026 Group Tables</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f3;
+      --panel: #ffffff;
+      --ink: #17201c;
+      --muted: #647067;
+      --line: #d9ded6;
+      --accent: #0f766e;
+      --accent-soft: #e0f2f1;
+      --warn: #a15c00;
+      --shadow: 0 10px 30px rgba(24, 34, 29, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(246, 247, 243, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 14px 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(20px, 3vw, 30px);
+      font-weight: 750;
+      letter-spacing: 0;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    select,
+    button,
+    input[type="number"] {
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+    }
+
+    select {
+      padding: 0 34px 0 10px;
+    }
+
+    button {
+      padding: 0 12px;
+      cursor: pointer;
+      font-weight: 650;
+    }
+
+    button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    button:hover {
+      filter: brightness(0.97);
+    }
+
+    .file-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .note {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .status {
+      min-height: 20px;
+      margin: -6px 0 14px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .status.error {
+      color: #b42318;
+    }
+
+    .group-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      gap: 16px;
+      align-items: start;
+    }
+
+    section.group {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .group-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfa;
+    }
+
+    .group-title {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .advance {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .block {
+      padding: 12px 14px 14px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin: 0 -4px;
+      padding: 0 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 7px 6px;
+      border-bottom: 1px solid var(--line);
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    td.team,
+    th.team {
+      min-width: 128px;
+      max-width: 160px;
+      text-align: left;
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .rank {
+      display: inline-flex;
+      width: 22px;
+      height: 22px;
+      align-items: center;
+      justify-content: center;
+      margin-right: 6px;
+      border-radius: 999px;
+      background: #eef1ed;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    tr.top-two .rank {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    tr.third .rank {
+      background: #fff4d6;
+      color: var(--warn);
+    }
+
+    .matches {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .match {
+      display: grid;
+      grid-template-columns: minmax(86px, 1fr) 48px 18px 48px minmax(86px, 1fr);
+      gap: 6px;
+      align-items: center;
+    }
+
+    .match .home {
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .match .away {
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .match input {
+      width: 48px;
+      padding: 0 6px;
+      text-align: center;
+    }
+
+    .match .dash {
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .matrix td {
+      min-width: 58px;
+      height: 36px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .matrix td.self {
+      background: #f0f2ee;
+      color: transparent;
+    }
+
+    .matrix td.filled {
+      color: var(--ink);
+      background: #f9fbfb;
+    }
+
+    .thirds {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .thirds h2 {
+      margin: 0;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      font-size: 18px;
+    }
+
+    .empty {
+      color: var(--muted);
+    }
+
+    .knockout {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .knockout h2 {
+      margin: 0;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      font-size: 18px;
+    }
+
+    .bracket {
+      display: flex;
+      overflow-x: auto;
+      padding: 20px 20px 40px;
+    }
+    .round {
+      display: flex;
+      flex-direction: column;
+      width: 280px;
+      margin-right: 40px;
+      flex-shrink: 0;
+    }
+    .round:last-child {
+      margin-right: 0;
+    }
+    .match-pair {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: space-around;
+      position: relative;
+    }
+    .round:not(:last-child) .match-pair::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      top: 25%;
+      bottom: 25%;
+      border-right: 2px solid var(--line);
+    }
+    .round:not(:last-child) .match-pair::before {
+      content: "";
+      position: absolute;
+      right: -40px;
+      top: 50%;
+      width: 20px;
+      border-top: 2px solid var(--line);
+    }
+    .round:not(:last-child) .ko-node::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      top: 50%;
+      width: 20px;
+      border-top: 2px solid var(--line);
+    }
+    .ko-node {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+      margin: 10px 0;
+      z-index: 1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .ko-side {
+      display: flex;
+      align-items: center;
+      padding: 6px 8px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--line);
+      background: #fafbfa;
+    }
+    .ko-side:last-child {
+      border-bottom: none;
+    }
+    .ko-side.eliminated {
+      opacity: 0.35;
+      background: #f0f2ee;
+    }
+    .ko-side.eliminated .ko-name {
+      text-decoration: line-through;
+    }
+    .ko-name {
+      font-weight: 650;
+      white-space: normal;
+      flex: 1;
+      margin-right: 8px;
+      line-height: 1.2;
+    }
+    .ko-side input {
+      width: 34px;
+      height: 26px;
+      min-height: 26px;
+      padding: 0 4px;
+      text-align: center;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+    }
+    .ko-placeholder {
+      color: var(--muted);
+      font-weight: 400;
+      text-decoration: none !important;
+    }
+
+    .jump-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 0 18px 12px;
+      max-width: 1180px;
+      margin: 0 auto;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .jump-nav a {
+      color: var(--accent);
+      text-decoration: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--accent-soft);
+      transition: opacity 0.2s;
+    }
+
+    .jump-nav a:hover {
+      opacity: 0.8;
+    }
+
+    #groups,
+    #third-title,
+    #knockout-title {
+      scroll-margin-top: 110px;
+    }
+
+    @media (max-width: 520px) {
+      .topbar,
+      .jump-nav,
+      main {
+        padding-inline: 12px;
+      }
+
+      .group-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .match {
+        grid-template-columns: minmax(74px, 1fr) 44px 14px 44px minmax(74px, 1fr);
+        font-size: 13px;
+      }
+
+      .match input {
+        width: 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <h1 id="appTitle">World Cup 2026 星取り表</h1>
+      <div class="controls">
+        <select id="groupFilter" aria-label="表示グループ">
+          <option value="all">全グループ</option>
+        </select>
+        <button id="langToggle">EN / JA</button>
+        <button id="exportData">JSON書き出し</button>
+        <button id="importData">JSON読み込み</button>
+        <input id="importFile" class="file-input" type="file" accept="application/json,.json">
+        <button id="clearAll" class="primary">全結果クリア</button>
+      </div>
+    </div>
+    <nav class="jump-nav">
+      <a href="#groups" id="navGroup">グループリーグ</a>
+      <a href="#third-title" id="navThird">3位比較</a>
+      <a href="#knockout-title" id="navKnockout">決勝トーナメント</a>
+    </nav>
+  </header>
+
+  <main>
+    <p id="noteText" class="note">スコアを入れると自動で更新します。順位は「勝ち点、得失点差、得点、チーム名」の簡易順です。公式の細かいタイブレークは省略しています。</p>
+    <p id="status" class="status" aria-live="polite"></p>
+    <div id="groups" class="group-grid"></div>
+    <section class="thirds" aria-labelledby="third-title">
+      <h2 id="third-title">3位比較</h2>
+      <div class="block table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="thRank">順位</th>
+              <th class="team" data-i18n="thTeam">チーム</th>
+              <th data-i18n="thGrp">組</th>
+              <th data-i18n="thPts">点</th>
+              <th data-i18n="thPld">試</th>
+              <th data-i18n="thW">勝</th>
+              <th data-i18n="thD">分</th>
+              <th data-i18n="thL">敗</th>
+              <th data-i18n="thGF">得</th>
+              <th data-i18n="thGA">失</th>
+              <th data-i18n="thGD">差</th>
+            </tr>
+          </thead>
+          <tbody id="thirdTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="knockout" aria-labelledby="knockout-title">
+      <h2 id="knockout-title">決勝トーナメント</h2>
+      <div class="bracket" id="knockoutGrid"></div>
+    </section>
+  </main>
+
+  <script>
+    const i18n = {
+      ja: {
+        appTitle: "World Cup 2026 星取り表",
+        filterAll: "全グループ",
+        btnExport: "JSON書き出し",
+        btnImport: "JSON読み込み",
+        btnClear: "全結果クリア",
+        navGroup: "グループリーグ",
+        navThird: "3位比較",
+        navKnockout: "決勝トーナメント",
+        noteText: "スコアを入れると自動で更新します。順位は「勝ち点、得失点差、得点、チーム名」の簡易順です。公式の細かいタイブレークは省略しています。",
+        titleThird: "3位比較",
+        titleKnockout: "決勝トーナメント",
+        thRank: "順位",
+        thTeam: "チーム",
+        thGrp: "組",
+        thPts: "点",
+        thPld: "試",
+        thW: "勝",
+        thD: "分",
+        thL: "敗",
+        thGF: "得",
+        thGA: "失",
+        thGD: "差",
+        advance: "上位2位 + 3位上位8チームが決勝Tへ"
+      },
+      en: {
+        appTitle: "World Cup 2026 Group Tables",
+        filterAll: "All Groups",
+        btnExport: "Export JSON",
+        btnImport: "Import JSON",
+        btnClear: "Clear All",
+        navGroup: "Group Stage",
+        navThird: "3rd Place",
+        navKnockout: "Knockout Stage",
+        noteText: "Scores update automatically. Tiebreakers are simply Points, GD, GF, then Team Name. Official fine tiebreakers are omitted.",
+        titleThird: "3rd Place Comparison",
+        titleKnockout: "Knockout Stage",
+        thRank: "Rnk",
+        thTeam: "Team",
+        thGrp: "Grp",
+        thPts: "Pts",
+        thPld: "Pld",
+        thW: "W",
+        thD: "D",
+        thL: "L",
+        thGF: "GF",
+        thGA: "GA",
+        thGD: "GD",
+        advance: "Top 2 + Best 8 3rd-placed advance"
+      }
+    };
+    let currentLang = localStorage.getItem('wc2026_lang') || 'ja';
+    function t(key) { return i18n[currentLang][key] || key; }
+
+    function updateStaticI18n() {
+      document.getElementById('appTitle').textContent = t('appTitle');
+      document.querySelector('#groupFilter option[value="all"]').textContent = t('filterAll');
+      document.getElementById('exportData').textContent = t('btnExport');
+      document.getElementById('importData').textContent = t('btnImport');
+      document.getElementById('clearAll').textContent = t('btnClear');
+      document.getElementById('navGroup').textContent = t('navGroup');
+      document.getElementById('navThird').textContent = t('navThird');
+      document.getElementById('navKnockout').textContent = t('navKnockout');
+      document.getElementById('noteText').textContent = t('noteText');
+      document.getElementById('third-title').textContent = t('titleThird');
+      document.getElementById('knockout-title').textContent = t('titleKnockout');
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t(el.getAttribute('data-i18n'));
+      });
+      document.getElementById('langToggle').textContent = currentLang === 'ja' ? 'EN / JA' : 'JA / EN';
+    }
+
+    const groups = [
+      { id: "A", teams: ["Mexico", "South Africa", "South Korea", "Czechia"] },
+      { id: "B", teams: ["Canada", "Bosnia and Herzegovina", "Qatar", "Switzerland"] },
+      { id: "C", teams: ["Brazil", "Morocco", "Haiti", "Scotland"] },
+      { id: "D", teams: ["United States", "Paraguay", "Australia", "Turkey"] },
+      { id: "E", teams: ["Germany", "Curacao", "Ivory Coast", "Ecuador"] },
+      { id: "F", teams: ["Netherlands", "Japan", "Sweden", "Tunisia"] },
+      { id: "G", teams: ["Belgium", "Egypt", "Iran", "New Zealand"] },
+      { id: "H", teams: ["Spain", "Cape Verde", "Saudi Arabia", "Uruguay"] },
+      { id: "I", teams: ["France", "Senegal", "Iraq", "Norway"] },
+      { id: "J", teams: ["Argentina", "Algeria", "Austria", "Jordan"] },
+      { id: "K", teams: ["Portugal", "DR Congo", "Uzbekistan", "Colombia"] },
+      { id: "L", teams: ["England", "Croatia", "Ghana", "Panama"] }
+    ];
+
+    const flags = {
+      "Mexico": "🇲🇽", "South Africa": "🇿🇦", "South Korea": "🇰🇷", "Czechia": "🇨🇿",
+      "Canada": "🇨🇦", "Bosnia and Herzegovina": "🇧🇦", "Qatar": "🇶🇦", "Switzerland": "🇨🇭",
+      "Brazil": "🇧🇷", "Morocco": "🇲🇦", "Haiti": "🇭🇹", "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+      "United States": "🇺🇸", "Paraguay": "🇵🇾", "Australia": "🇦🇺", "Turkey": "🇹🇷",
+      "Germany": "🇩🇪", "Curacao": "🇨🇼", "Ivory Coast": "🇨🇮", "Ecuador": "🇪🇨",
+      "Netherlands": "🇳🇱", "Japan": "🇯🇵", "Sweden": "🇸🇪", "Tunisia": "🇹🇳",
+      "Belgium": "🇧🇪", "Egypt": "🇪🇬", "Iran": "🇮🇷", "New Zealand": "🇳🇿",
+      "Spain": "🇪🇸", "Cape Verde": "🇨🇻", "Saudi Arabia": "🇸🇦", "Uruguay": "🇺🇾",
+      "France": "🇫🇷", "Senegal": "🇸🇳", "Iraq": "🇮🇶", "Norway": "🇳🇴",
+      "Argentina": "🇦🇷", "Algeria": "🇩🇿", "Austria": "🇦🇹", "Jordan": "🇯🇴",
+      "Portugal": "🇵🇹", "DR Congo": "🇨🇩", "Uzbekistan": "🇺🇿", "Colombia": "🇨🇴",
+      "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Croatia": "🇭🇷", "Ghana": "🇬🇭", "Panama": "🇵🇦"
+    };
+
+    const shortNames = {
+      "Bosnia and Herzegovina": "Bosnia & Herz.",
+      "United States": "USA",
+      "South Africa": "S. Africa",
+      "South Korea": "S. Korea"
+    };
+
+    function displayTeam(team) {
+      const name = shortNames[team] || team;
+      return flags[team] ? `${flags[team]} ${name}` : name;
+    }
+
+    const storageKey = "wc2026-simple-tables-v1";
+    const state = JSON.parse(localStorage.getItem(storageKey) || "{}");
+    const groupsEl = document.querySelector("#groups");
+    const filterEl = document.querySelector("#groupFilter");
+    const thirdTableEl = document.querySelector("#thirdTable");
+    const statusEl = document.querySelector("#status");
+    const importFileEl = document.querySelector("#importFile");
+
+    function matchKey(groupId, home, away) {
+      return `${groupId}:${home}:${away}`;
+    }
+
+    function pairings(teams) {
+      return [
+        [teams[0], teams[1]],
+        [teams[2], teams[3]],
+        [teams[0], teams[2]],
+        [teams[3], teams[1]],
+        [teams[3], teams[0]],
+        [teams[1], teams[2]]
+      ];
+    }
+
+    function save() {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+
+    function setStatus(message, isError = false) {
+      statusEl.textContent = message;
+      statusEl.classList.toggle("error", isError);
+    }
+
+    function blankStats(team, groupId, seed) {
+      return { team, groupId, seed, played: 0, wins: 0, draws: 0, losses: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
+    }
+
+    function groupStats(group) {
+      const table = new Map(group.teams.map((team, index) => [team, blankStats(team, group.id, index)]));
+
+      for (const [home, away] of pairings(group.teams)) {
+        const item = state[matchKey(group.id, home, away)];
+        if (!item || item.home === "" || item.away === "") continue;
+
+        const homeGoals = Number(item.home);
+        const awayGoals = Number(item.away);
+        if (!Number.isInteger(homeGoals) || !Number.isInteger(awayGoals) || homeGoals < 0 || awayGoals < 0) continue;
+
+        const h = table.get(home);
+        const a = table.get(away);
+        h.played += 1;
+        a.played += 1;
+        h.gf += homeGoals;
+        h.ga += awayGoals;
+        a.gf += awayGoals;
+        a.ga += homeGoals;
+
+        if (homeGoals > awayGoals) {
+          h.wins += 1;
+          a.losses += 1;
+          h.pts += 3;
+        } else if (homeGoals < awayGoals) {
+          a.wins += 1;
+          h.losses += 1;
+          a.pts += 3;
+        } else {
+          h.draws += 1;
+          a.draws += 1;
+          h.pts += 1;
+          a.pts += 1;
+        }
+      }
+
+      return [...table.values()]
+        .map(row => ({ ...row, gd: row.gf - row.ga }))
+        .sort(compareRows);
+    }
+
+    function compareRows(a, b) {
+      return b.pts - a.pts ||
+        b.gd - a.gd ||
+        b.gf - a.gf ||
+        a.groupId.localeCompare(b.groupId) ||
+        a.seed - b.seed;
+    }
+
+    function resultFor(groupId, rowTeam, colTeam) {
+      if (rowTeam === colTeam) return "";
+      const direct = state[matchKey(groupId, rowTeam, colTeam)];
+      if (direct && direct.home !== "" && direct.away !== "") return `${direct.home}-${direct.away}`;
+      const reverse = state[matchKey(groupId, colTeam, rowTeam)];
+      if (reverse && reverse.home !== "" && reverse.away !== "") return `${reverse.away}-${reverse.home}`;
+      return "";
+    }
+
+    function render() {
+      const selected = filterEl.value;
+      groupsEl.innerHTML = "";
+
+      for (const group of groups) {
+        if (selected !== "all" && selected !== group.id) continue;
+        const rows = groupStats(group);
+        const section = document.createElement("section");
+        section.className = "group";
+        section.dataset.group = group.id;
+        section.innerHTML = `
+          <div class="group-head">
+            <h2 class="group-title">Group ${group.id}</h2>
+            <span class="advance">${t('advance')}</span>
+          </div>
+          <div class="block">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>${t('thRank')}</th>
+                    <th class="team">${t('thTeam')}</th>
+                    <th>${t('thPts')}</th>
+                    <th>${t('thPld')}</th>
+                    <th>${t('thW')}</th>
+                    <th>${t('thD')}</th>
+                    <th>${t('thL')}</th>
+                    <th>${t('thGF')}</th>
+                    <th>${t('thGA')}</th>
+                    <th>${t('thGD')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows.map((row, index) => `
+                    <tr class="${index < 2 ? "top-two" : index === 2 ? "third" : ""}">
+                      <td class="team"><span class="rank">${index + 1}</span>${displayTeam(row.team)}</td>
+                      <td><strong>${row.pts}</strong></td>
+                      <td>${row.played}</td>
+                      <td>${row.wins}</td>
+                      <td>${row.draws}</td>
+                      <td>${row.losses}</td>
+                      <td>${row.gf}</td>
+                      <td>${row.ga}</td>
+                      <td>${row.gd > 0 ? `+${row.gd}` : row.gd}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="matches">
+              ${pairings(group.teams).map(([home, away]) => {
+                const key = matchKey(group.id, home, away);
+                const value = state[key] || { home: "", away: "" };
+                return `
+                  <label class="match">
+                    <span class="home">${displayTeam(home)}</span>
+                    <input type="number" min="0" step="1" inputmode="numeric" data-key="${key}" data-side="home" value="${value.home}" aria-label="${home} goals">
+                    <span class="dash">-</span>
+                    <input type="number" min="0" step="1" inputmode="numeric" data-key="${key}" data-side="away" value="${value.away}" aria-label="${away} goals">
+                    <span class="away">${displayTeam(away)}</span>
+                  </label>
+                `;
+              }).join("")}
+            </div>
+
+            <div class="table-wrap" style="margin-top: 14px;">
+              <table class="matrix">
+                <thead>
+                  <tr>
+                    <th class="team">${currentLang === 'ja' ? '対戦' : 'Vs'}</th>
+                    ${group.teams.map(team => `<th>${displayTeam(team)}</th>`).join("")}
+                  </tr>
+                </thead>
+                <tbody>
+                  ${group.teams.map(rowTeam => `
+                    <tr>
+                      <th class="team">${displayTeam(rowTeam)}</th>
+                      ${group.teams.map(colTeam => {
+                        const result = resultFor(group.id, rowTeam, colTeam);
+                        return `<td class="${rowTeam === colTeam ? "self" : result ? "filled" : "empty"}">${rowTeam === colTeam ? "x" : result || "-"}</td>`;
+                      }).join("")}
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        groupsEl.append(section);
+      }
+
+      renderThirds();
+    }
+
+    function renderThirds() {
+      const thirds = groups
+        .map(group => groupStats(group)[2])
+        .filter(Boolean)
+        .sort(compareRows);
+
+      thirdTableEl.innerHTML = thirds.map((row, index) => `
+        <tr class="${index < 8 ? "top-two" : ""}">
+          <td><span class="rank">${index + 1}</span></td>
+          <td class="team">${displayTeam(row.team)}</td>
+          <td>${row.groupId}</td>
+          <td><strong>${row.pts}</strong></td>
+          <td>${row.played}</td>
+          <td>${row.wins}</td>
+          <td>${row.draws}</td>
+          <td>${row.losses}</td>
+          <td>${row.gf}</td>
+          <td>${row.ga}</td>
+          <td>${row.gd > 0 ? `+${row.gd}` : row.gd}</td>
+        </tr>
+      `).join("");
+
+      renderKnockout();
+    }
+
+    const initialR32 = [
+      { home: "A2位", away: "B2位" },
+      { home: "E1位", away: "A/B/C/D/F3位" },
+      { home: "F1位", away: "C2位" },
+      { home: "C1位", away: "F2位" },
+      { home: "I1位", away: "C/D/F/G/H3位" },
+      { home: "E2位", away: "I2位" },
+      { home: "A1位", away: "C/E/F/H/I3位" },
+      { home: "L1位", away: "E/H/I/J/K3位" },
+      { home: "J1位", away: "H2位" },
+      { home: "G1位", away: "A/E/H/I/J3位" },
+      { home: "K2位", away: "L2位" },
+      { home: "H1位", away: "J2位" },
+      { home: "B1位", away: "E/F/G/I/J3位" },
+      { home: "K1位", away: "D/E/I/J/L3位" },
+      { home: "D1位", away: "A/B/E/F/G3位" },
+      { home: "D2位", away: "G2位" }
+    ];
+
+    const koTree = [];
+    let mIndex = 1;
+    for (let i = 0; i < 5; i++) {
+      const roundMatches = [];
+      const numMatches = 16 / Math.pow(2, i);
+      for (let j = 0; j < numMatches; j++) {
+        let homeRef, awayRef;
+        if (i === 0) {
+          homeRef = { type: 'placeholder', value: initialR32[j].home };
+          awayRef = { type: 'placeholder', value: initialR32[j].away };
+        } else {
+          homeRef = { type: 'match', value: `m${mIndex - numMatches * 2 + j * 2}` };
+          awayRef = { type: 'match', value: `m${mIndex - numMatches * 2 + j * 2 + 1}` };
+        }
+        roundMatches.push({ id: `m${mIndex}`, homeRef, awayRef });
+        mIndex++;
+      }
+      koTree.push(roundMatches);
+    }
+
+    function isGroupFinished(group) {
+      let count = 0;
+      for (const [home, away] of pairings(group.teams)) {
+        const m = state[matchKey(group.id, home, away)];
+        if (m && m.home !== "" && m.away !== "") count++;
+      }
+      return count === 6;
+    }
+
+    function getKnockoutTeamIsDetermined(placeholder) {
+      const match1 = placeholder.match(/^([A-L])[12]位$/);
+      if (match1) {
+        const g = groups.find(g => g.id === match1[1]);
+        return isGroupFinished(g);
+      }
+      return false;
+    }
+
+    function getKnockoutTeam(placeholder) {
+      const match1 = placeholder.match(/^([A-L])1位$/);
+      if (match1) {
+        const g = groups.find(g => g.id === match1[1]);
+        if (isGroupFinished(g)) return displayTeam(groupStats(g)[0].team);
+      }
+      const match2 = placeholder.match(/^([A-L])2位$/);
+      if (match2) {
+        const g = groups.find(g => g.id === match2[1]);
+        if (isGroupFinished(g)) return displayTeam(groupStats(g)[1].team);
+      }
+      return placeholder;
+    }
+
+    const koWinners = {};
+
+    function calculateKoWinners() {
+      for (const round of koTree) {
+        for (const m of round) {
+          const stateVal = state['ko:' + m.id];
+          if (stateVal && stateVal.home !== "" && stateVal.away !== "") {
+            const hs = Number(stateVal.home);
+            const as = Number(stateVal.away);
+            if (hs > as) {
+              koWinners[m.id] = resolveTeamRef(m.homeRef).name;
+            } else if (as > hs) {
+              koWinners[m.id] = resolveTeamRef(m.awayRef).name;
+            }
+          }
+        }
+      }
+    }
+
+    function tKoPlaceholder(str) {
+      if (currentLang === 'ja') return str;
+      let s = str.replace(/([A-L])1位/g, "1st Grp $1");
+      s = s.replace(/([A-L])2位/g, "2nd Grp $1");
+      s = s.replace(/(.*?)3位/g, "3rd Grp $1");
+      return s;
+    }
+
+    function resolveTeamRef(ref) {
+      if (ref.type === 'placeholder') {
+        const determined = getKnockoutTeamIsDetermined(ref.value);
+        return { 
+          name: determined ? getKnockoutTeam(ref.value) : tKoPlaceholder(ref.value), 
+          isDetermined: determined 
+        };
+      } else if (ref.type === 'match') {
+        const winner = koWinners[ref.value];
+        if (winner) {
+          return { name: winner, isDetermined: true };
+        } else {
+          const mNum = ref.value.substring(1);
+          return { name: currentLang === 'ja' ? `M${mNum} 勝者` : `Winner M${mNum}`, isDetermined: false };
+        }
+      }
+    }
+
+    function renderKoNode(m) {
+      const h = resolveTeamRef(m.homeRef);
+      const a = resolveTeamRef(m.awayRef);
+      
+      const stateVal = state['ko:' + m.id] || { home: "", away: "" };
+      let homeWon = false;
+      let awayWon = false;
+      if (stateVal.home !== "" && stateVal.away !== "") {
+        const hs = Number(stateVal.home);
+        const as = Number(stateVal.away);
+        if (hs > as) homeWon = true;
+        if (as > hs) awayWon = true;
+      }
+
+      const hClass = (stateVal.home !== "" && stateVal.away !== "" && !homeWon) ? "eliminated" : "";
+      const aClass = (stateVal.home !== "" && stateVal.away !== "" && !awayWon) ? "eliminated" : "";
+      
+      const hText = h.isDetermined ? h.name : `<span class="ko-placeholder">${h.name}</span>`;
+      const aText = a.isDetermined ? a.name : `<span class="ko-placeholder">${a.name}</span>`;
+
+      return `
+        <div class="ko-node">
+          <div class="ko-side ${hClass}">
+            <span class="ko-name">${hText}</span>
+            <input type="number" min="0" data-koid="${m.id}" data-side="home" value="${stateVal.home}">
+          </div>
+          <div class="ko-side ${aClass}">
+            <span class="ko-name">${aText}</span>
+            <input type="number" min="0" data-koid="${m.id}" data-side="away" value="${stateVal.away}">
+          </div>
+        </div>
+      `;
+    }
+
+    function renderKnockout() {
+      const koGrid = document.querySelector("#knockoutGrid");
+      if (!koGrid) return;
+      
+      for (const k in koWinners) delete koWinners[k];
+      calculateKoWinners();
+
+      koGrid.innerHTML = koTree.map((round, rIdx) => {
+        let html = `<div class="round">`;
+        for (let i = 0; i < round.length; i += 2) {
+          if (round[i + 1]) {
+            html += `<div class="match-pair">`;
+            html += renderKoNode(round[i]);
+            html += renderKoNode(round[i + 1]);
+            html += `</div>`;
+          } else {
+            html += `<div class="match-pair single">`;
+            html += renderKoNode(round[i]);
+            html += `</div>`;
+          }
+        }
+        html += `</div>`;
+        return html;
+      }).join("");
+    }
+
+    function sanitizeScore(value) {
+      if (value === "") return "";
+      const number = Number(value);
+      if (!Number.isInteger(number) || number < 0) return "";
+      return String(number);
+    }
+
+    function validMatchKeys() {
+      const keys = new Set();
+      for (const group of groups) {
+        for (const [home, away] of pairings(group.teams)) {
+          keys.add(matchKey(group.id, home, away));
+        }
+      }
+      return keys;
+    }
+
+    function normalizedState(raw) {
+      const source = raw && raw.results ? raw.results : raw;
+      if (!source || typeof source !== "object" || Array.isArray(source)) return null;
+
+      const keys = validMatchKeys();
+      const normalized = {};
+      for (const [key, value] of Object.entries(source)) {
+        if (!keys.has(key) || !value || typeof value !== "object") continue;
+        normalized[key] = {
+          home: sanitizeScore(String(value.home ?? "")),
+          away: sanitizeScore(String(value.away ?? ""))
+        };
+      }
+      return normalized;
+    }
+
+    function exportData() {
+      const data = {
+        app: "wc2026-simple-tables",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        results: state
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "wc2026-results.json";
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setStatus("JSONを書き出しました。");
+    }
+
+    async function importData(file) {
+      if (!file) return;
+      try {
+        const raw = JSON.parse(await file.text());
+        const incoming = normalizedState(raw);
+        if (!incoming || Object.keys(incoming).length === 0) {
+          setStatus("読み込める試合データがありません。", true);
+          return;
+        }
+
+        Object.assign(state, incoming);
+        save();
+        render();
+        setStatus(`${Object.keys(incoming).length}試合分を読み込みました。既存データは消していません。`);
+      } catch (error) {
+        setStatus("JSONを読み込めませんでした。ファイル形式を確認してください。", true);
+      } finally {
+        importFileEl.value = "";
+      }
+    }
+
+    filterEl.insertAdjacentHTML("beforeend", groups.map(group => `<option value="${group.id}">Group ${group.id}</option>`).join(""));
+
+    document.getElementById('langToggle').addEventListener('click', () => {
+      currentLang = currentLang === 'ja' ? 'en' : 'ja';
+      localStorage.setItem('wc2026_lang', currentLang);
+      updateStaticI18n();
+      render();
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      updateStaticI18n();
+      render();
+    });
+
+    document.addEventListener("input", event => {
+      const input = event.target.closest("input");
+      if (!input) return;
+
+      if (input.dataset.koid) {
+        const key = 'ko:' + input.dataset.koid;
+        state[key] = state[key] || { home: "", away: "" };
+        state[key][input.dataset.side] = sanitizeScore(input.value);
+        input.value = state[key][input.dataset.side];
+        save();
+        render();
+        const replacement = document.querySelector(`input[data-koid="${CSS.escape(input.dataset.koid)}"][data-side="${input.dataset.side}"]`);
+        if (replacement) replacement.focus();
+        return;
+      }
+
+      if (input.dataset.key) {
+        const key = input.dataset.key;
+        state[key] = state[key] || { home: "", away: "" };
+        state[key][input.dataset.side] = sanitizeScore(input.value);
+        input.value = state[key][input.dataset.side];
+        save();
+        setStatus("");
+        render();
+        const replacement = document.querySelector(`input[data-key="${CSS.escape(key)}"][data-side="${input.dataset.side}"]`);
+        if (replacement) replacement.focus();
+      }
+    });
+
+    filterEl.addEventListener("change", render);
+
+    document.querySelector("#exportData").addEventListener("click", exportData);
+
+    document.querySelector("#importData").addEventListener("click", () => {
+      importFileEl.click();
+    });
+
+    importFileEl.addEventListener("change", () => {
+      importData(importFileEl.files[0]);
+    });
+
+    document.querySelector("#clearAll").addEventListener("click", () => {
+      for (const key of Object.keys(state)) delete state[key];
+      save();
+      setStatus("全結果をクリアしました。");
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
