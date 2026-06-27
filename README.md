@@ -2,6 +2,11 @@
 
 2026年 FIFAワールドカップのグループリーグおよび決勝トーナメントの進行をシミュレーション・管理できるWebアプリケーションです。
 
+## スクリーンショット
+![グループリーグ](./screenshots/group%20league.png)
+![3位比較](./screenshots/3rd%20place%20comparison.png)
+![決勝トーナメント](./screenshots/knockout%20stage.png)
+
 ## 特徴
 - **グループリーグ計算**: 全12グループの試合スコアを入力することで、勝ち点、得失点差などを自動計算し、順位表をリアルタイム更新。
 - **3位通過の比較**: 複雑なフォーマットとなる「各グループ3位チームのうち、成績上位8チームの選出」を自動で比較・表示。
@@ -25,6 +30,11 @@
 # World Cup 2026 Group Tables
 
 A web application to simulate and manage the progression of the 2026 FIFA World Cup, covering both the group stage and the knockout stage.
+
+## Screenshots
+![Group Stage](./screenshots/group%20league.png)
+![3rd Place Comparison](./screenshots/3rd%20place%20comparison.png)
+![Knockout Stage](./screenshots/knockout%20stage.png)
 
 ## Features
 - **Group Stage Calculator**: Input match scores for all 12 groups to automatically calculate points, goal differences, and instantly update the standings.
